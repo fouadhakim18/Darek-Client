@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Plumbing",
+    "image": "assets/images/Medicine.png"
+  },
+  {
+    "name": "Cleaning",
+    "image": "assets/images/Cleaning.png"
+  },
+  {
+    "name": "Electrician",
+    "image": "assets/images/Electrician.png"
+  },
+  {
+    "name": "Gardening",
+    "image": "assets/images/Cleaning.png"
+  },
+  {
+    "name": "Painting",
+    "image": "assets/images/Electrician.png"
+  },
+  {
+    "name": "Carpentry",
+    "image": "assets/images/Cleaning.png"
+  },
+  {
+    "name": "Livraison",
+    "image": "assets/images/Electrician.png"
+  }
+]
