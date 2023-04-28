@@ -1,48 +1,57 @@
 import 'package:flutter/material.dart';
 
-import '../../model/favorites.dart';
-import '../employee_details/employee_details_screen.dart';
+import '../models/favorites.dart';
 
-class FavList extends StatelessWidget {
-  FavList({super.key});
+final List<Favorite> favourites = [
+  Favorite(
+      name: 'Assil Kahlerras', wilaya: 'Tipasa', service: 'Service', rating: 5),
+  Favorite(
+      name: 'Chahinez Hadj Abderrahmane',
+      wilaya: 'Alger',
+      service: 'Service',
+      rating: 5),
+  Favorite(
+    name: 'Full Name',
+    wilaya: 'Wilaya',
+    service: 'Service',
+    rating: 4.5,
+  ),
+  Favorite(
+    name: 'Full Name',
+    wilaya: 'Wilaya',
+    service: 'Service',
+    rating: 4.7,
+  ),
+];
 
-  final List<Favorite> favourites = [
-    Favorite(
-        name: 'Assil Kahlerras',
-        wilaya: 'Tipasa',
-        service: 'Service',
-        rating: 5),
-    Favorite(
-        name: 'Chahinez Hadj Abderrahmane',
-        wilaya: 'Alger',
-        service: 'Service',
-        rating: 5),
-    Favorite(
-      name: 'Full Name',
-      wilaya: 'Wilaya',
-      service: 'Service',
-      rating: 4.5,
-    ),
-    Favorite(
-      name: 'Full Name',
-      wilaya: 'Wilaya',
-      service: 'Service',
-      rating: 4.7,
-    ),
-  ];
+class Swipetodelete extends StatefulWidget {
+  const Swipetodelete({super.key});
 
   @override
+  State<Swipetodelete> createState() => _SwipetodeleteState();
+}
+
+class _SwipetodeleteState extends State<Swipetodelete> {
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: favourites.map((fv) {
-          return InkWell(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const EmployeeDetails(),
+    return ListView.builder(
+        itemCount: favourites.length,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        itemBuilder: (BuildContext context, int index) {
+          return Dismissible(
+            background: Container(
+              color: Colors.red,
+              child: const Icon(
+                Icons.delete,
+                color: Colors.white,
               ),
             ),
+            key: ValueKey<Favorite>(favourites[index]),
+            onDismissed: (DismissDirection direction) {
+              setState(() {
+                favourites.removeAt(index);
+              });
+            },
             child: Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
@@ -71,20 +80,20 @@ class FavList extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            fv.name,
+                            favourites[index].name,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 17,
                             ),
                           ),
                           Text(
-                            fv.wilaya,
+                            favourites[index].wilaya,
                             style: const TextStyle(
                               fontSize: 13,
                             ),
                           ),
                           Text(
-                            fv.service,
+                            favourites[index].service,
                             style: const TextStyle(
                               fontSize: 13,
                             ),
@@ -108,7 +117,7 @@ class FavList extends StatelessWidget {
                               width: 5,
                             ),
                             Text(
-                              fv.rating.toString(),
+                              favourites[index].rating.toString(),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 13,
@@ -123,8 +132,6 @@ class FavList extends StatelessWidget {
               ),
             ),
           );
-        }).toList(),
-      ),
-    );
+        });
   }
 }

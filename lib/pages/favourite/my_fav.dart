@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'favorites_list.dart';
+import '../widgets/favorites_list.dart';
 
 class MyFav extends StatelessWidget {
-  const MyFav({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,16 +12,16 @@ class MyFav extends StatelessWidget {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'My Favorites',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
-            fontSize: 21.sp,
+            fontSize: 25,
           ),
         ),
       ),
-      body: FavList(),
+      body: Swipetodelete(),
     );
   }
 }
