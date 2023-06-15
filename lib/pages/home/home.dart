@@ -1,9 +1,10 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:onboading/pages/home/categories.dart';
-import 'package:onboading/pages/chat/chat.dart';
-import 'package:onboading/pages/profile/profile_settings.dart';
-import 'package:onboading/pages/bookings/schedule.dart';
+
+import '../bookings/schedule.dart';
+import '../chat/chat.dart';
+import '../profile/profile_settings.dart';
+import 'categories.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -37,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
     return Scaffold(
       extendBody:
-          true, // if we add background image it extends under bottom nav bar       
+          true, // if we add background image it extends under bottom nav bar
       // appBar: AppBar(),
       body: getSelectedWidget(index: currentScreen),
       bottomNavigationBar: Theme(

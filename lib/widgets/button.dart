@@ -8,7 +8,7 @@ class Button extends StatelessWidget {
   final String text;
   final double size;
   Color? textColor;
-  VoidCallback clicked; 
+  VoidCallback clicked;
   Button(
       {super.key,
       this.color = AppColors.mainBlue,
@@ -25,6 +25,9 @@ class Button extends StatelessWidget {
           child: ElevatedButton(
             onPressed: clicked,
             style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(7.0),
+              ),
               padding: const EdgeInsets.symmetric(vertical: 15),
               backgroundColor: color,
             ),

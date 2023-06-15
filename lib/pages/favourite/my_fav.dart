@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'favorites_list.dart';
 
@@ -15,16 +14,20 @@ class MyFav extends StatelessWidget {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'My Favorites',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
-            fontSize: 21.sp,
+            fontSize: 21,
           ),
         ),
       ),
-      body: FavList(),
+      body: Column(
+        children: [
+          const Swipetodelete(),
+        ],
+      ),
     );
   }
 }

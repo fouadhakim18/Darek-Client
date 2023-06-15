@@ -1,21 +1,27 @@
-// ignore: depend_on_referenced_packages
-// ignore_for_file: library_private_types_in_public_api
-
-import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:onboading/model/service.dart';
-import 'package:onboading/widgets/circle_button.dart';
+import 'package:get/get.dart';
+import 'package:servili_client/utils/colors.dart';
 import 'dart:convert';
 
+import '../../model/service.dart';
+import '../../utils/load_services.dart';
+import '../../widgets/circle_button.dart';
 import '../favourite/my_fav.dart';
+import '../filters/body.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+
 import '../workers/workers.dart';
 
 class SelectService extends StatefulWidget {
   const SelectService({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _SelectServiceState createState() => _SelectServiceState();
 }
 
@@ -25,13 +31,41 @@ class _SelectServiceState extends State<SelectService> {
   Future<List<Service>> readJson() async {
     final String response = await rootBundle.loadString('assets/services.json');
     final data = await json.decode(response) as List<dynamic>;
+    final data2 = await json.decode(response);
+    List<String> temp = [];
+    for (var i = 0; i < data.length; i++) {
+      temp.add(data2[i]["name"]);
+    }
+    setState(() {
+      LoadServices.serviceDisplay = temp;
+    });
     return data.map((json) => Service.fromJson(json)).toList();
+  }
+
+  late Future<List<Service>> _readJson;
+
+  final fbm = FirebaseMessaging.instance;
+
+  Future<void> updateToken(String? token) async {
+    try {
+      final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
+      await FirebaseFirestore.instance
+          .collection('clients')
+          .doc(currentUserUid)
+          .update({"UserToken": token});
+    } catch (e) {}
   }
 
   @override
   void initState() {
     super.initState();
+    fbm.getToken().then((token) {
+      updateToken(token);
+
+      FirebaseMessaging.onMessage.listen((event) {});
+    });
     initialize();
+    _readJson = readJson();
   }
 
   void initialize() async {
@@ -47,12 +81,11 @@ class _SelectServiceState extends State<SelectService> {
                 padding: const EdgeInsets.only(bottom: 60),
                 child: FloatingActionButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Workers(),
-                      ),
-                    );
+                    Get.to(
+                        () => WorkersScreen(
+                            service:
+                                LoadServices.serviceDisplay[selectedService]),
+                        transition: Transition.fadeIn);
                   },
                   backgroundColor: const Color(0xFF34478C),
                   child: const Icon(
@@ -63,7 +96,7 @@ class _SelectServiceState extends State<SelectService> {
               )
             : null,
         body: FutureBuilder(
-          future: readJson(),
+          future: _readJson,
           builder: (context, data) {
             if (data.hasError) {
               return const Center(
@@ -105,10 +138,9 @@ class _SelectServiceState extends State<SelectService> {
                                   CircleButton(
                                       icon: Icons.favorite,
                                       onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => const MyFav()),
+                                        Get.to(
+                                          () => const MyFav(),
+                                          transition: Transition.fade,
                                         );
                                       }),
                                 ],
@@ -116,33 +148,66 @@ class _SelectServiceState extends State<SelectService> {
                               SizedBox(
                                 height: 20.h,
                               ),
-                              CupertinoSearchTextField(
-                                onChanged: (searchText) {
-                                  searchText = searchText.toLowerCase();
-                                  setState(() {
-                                    serviceDisplay = items.where((u) {
-                                      var name = u.name.toLowerCase();
-                                      return name.contains(searchText);
-                                    }).toList();
-                                  });
-                                },
-                                itemSize: 24,
-                                placeholderStyle: TextStyle(
-                                    fontSize: 19.sp,
-                                    color: const Color.fromARGB(
-                                        255, 151, 150, 150)),
-                                backgroundColor: const Color(0xFFF5F5F5),
-                                borderRadius: BorderRadius.circular(30),
-                                padding: const EdgeInsets.only(
-                                    top: 12, bottom: 12, left: 10),
-                                prefixIcon: Padding(
-                                  padding: EdgeInsets.only(left: 10.w),
-                                  child: Icon(
-                                    Icons.search,
-                                    size: 32.sp,
+                              SizedBox(
+                                height: 50,
+                                child: Center(
+                                  child: TextField(
+                                    onChanged: (searchText) {
+                                      searchText = searchText.toLowerCase();
+                                      setState(() {
+                                        serviceDisplay = items.where((u) {
+                                          var name = u.name.toLowerCase();
+                                          return name.contains(searchText);
+                                        }).toList();
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 15),
+                                      prefixIconColor: AppColors.mainBlue,
+                                      suffixIconColor: AppColors.mainBlue,
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      hintStyle: TextStyle(
+                                          fontSize: 16.sp,
+                                          color: const Color.fromARGB(
+                                              255, 151, 150, 150)),
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30.0),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30.0),
+                                          borderSide: const BorderSide(
+                                              color: AppColors.mainBlue)),
+                                      hintText: "Search",
+                                      prefixIcon: Icon(
+                                        Icons.search,
+                                        size: 29.sp,
+                                      ),
+                                      suffixIcon: InkWell(
+                                          onTap: () => showModalBottomSheet(
+                                              isScrollControlled: true,
+                                              barrierColor:
+                                                  const Color.fromARGB(
+                                                          255, 0, 0, 0)
+                                                      .withOpacity(0.8),
+                                              backgroundColor:
+                                                  Colors.transparent,
+                                              context: context,
+                                              builder: (context) {
+                                                return const FractionallySizedBox(
+                                                  heightFactor: 0.65,
+                                                  child: Body(),
+                                                );
+                                              }),
+                                          child: const Icon(Icons.filter_list)),
+                                    ),
                                   ),
                                 ),
-                              ),
+                              )
                             ],
                           )),
                     )
@@ -159,20 +224,29 @@ class _SelectServiceState extends State<SelectService> {
                               fontSize: 19.sp, fontWeight: FontWeight.bold),
                         ),
                         Expanded(
+                            child: AnimationLimiter(
                           child: GridView.builder(
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
                                 childAspectRatio: 1,
-                                crossAxisSpacing: 15.0,
-                                mainAxisSpacing: 15.0,
+                                crossAxisSpacing: 10.0,
+                                mainAxisSpacing: 10.0,
                               ),
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: serviceDisplay.length,
                               itemBuilder: (BuildContext context, int index) {
-                                return serviceContainer(index, serviceDisplay);
+                                return AnimationConfiguration.staggeredGrid(
+                                    position: index,
+                                    columnCount: 2,
+                                    child: ScaleAnimation(
+                                        duration:
+                                            const Duration(milliseconds: 500),
+                                        child: FadeInAnimation(
+                                            child: serviceContainer(
+                                                index, serviceDisplay))));
                               }),
-                        ),
+                        )),
                       ]),
                 ),
               );
@@ -198,7 +272,7 @@ class _SelectServiceState extends State<SelectService> {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.only(top: 8.h, bottom: 8.h, right: 8.w, left: 8.w),
+        padding: EdgeInsets.only(top: 11.h, bottom: 4.h, right: 8.w, left: 8.w),
         decoration: BoxDecoration(
             color: selectedService == index
                 ? const Color.fromARGB(255, 225, 235, 255)
@@ -218,19 +292,21 @@ class _SelectServiceState extends State<SelectService> {
             ]),
         child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Container(
-                width: double.maxFinite,
-                height: 103.h,
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage(items[index].image),
-                        fit: BoxFit.cover)),
+              Center(
+                child: SizedBox(
+                    width: 110,
+                    height: 105.h,
+                    child: Image(
+                      image: AssetImage(items[index].image),
+                      fit: BoxFit.cover,
+                    )),
               ),
-              SizedBox(height: 5.h),
+              SizedBox(height: 10.h),
               Text(
                 items[index].name,
-                style: TextStyle(fontSize: 18.sp),
+                style: TextStyle(fontSize: 16.sp),
               )
             ]),
       ),

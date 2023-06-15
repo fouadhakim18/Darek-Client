@@ -1,26 +1,39 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:onboading/pages/home/home.dart';
+import 'package:get/get.dart';
 
+import '../home/home.dart';
 import 'workers_list.dart';
 
-class Workers extends StatelessWidget {
-  const Workers({super.key});
+// ignore: must_be_immutable
+class WorkersScreen extends StatefulWidget {
+  String service;
+  String? country;
+  String? state;
+  String? city;
+  num? rating;
+  WorkersScreen(
+      {Key? key,
+      required this.service,
+      this.country,
+      this.state,
+      this.city,
+      this.rating})
+      : super(key: key);
 
+  @override
+  State<WorkersScreen> createState() => _WorkersScreenState();
+}
+
+class _WorkersScreenState extends State<WorkersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
-          color: Colors.black,
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const HomeScreen(),
-            ),
-          ),
-        ),
+            color: Colors.black,
+            onPressed: () => Get.to(() => const HomeScreen(),
+                transition: Transition.fadeIn)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
@@ -32,35 +45,12 @@ class Workers extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: CupertinoSearchTextField(
-                onChanged: (text) {},
-                itemSize: 24,
-                placeholderStyle: TextStyle(
-                    fontSize: 19.sp,
-                    color: const Color.fromARGB(255, 151, 150, 150)),
-                backgroundColor: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(30),
-                padding: const EdgeInsets.only(top: 12, bottom: 12, left: 10),
-                prefixIcon: Padding(
-                  padding: EdgeInsets.only(left: 10.w),
-                  child: Icon(
-                    Icons.search,
-                    size: 32.sp,
-                  ),
-                ),
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.all(10.0),
-              child: WorkersList(),
-            ),
-          ],
-        ),
+      body: WorkersList(
+        service: widget.service,
+        country: widget.country,
+        state: widget.state,
+        city: widget.city,
+        rating: widget.rating,
       ),
     );
   }

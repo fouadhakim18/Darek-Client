@@ -1,30 +1,35 @@
 [
   {
-    "name": "Plumbing",
-    "image": "assets/images/Medicine.png"
-  },
-  {
-    "name": "Cleaning",
-    "image": "assets/images/Cleaning.png"
-  },
-  {
     "name": "Electrician",
-    "image": "assets/images/Electrician.png"
+    "image": "assets/images/electrician.png"
   },
-  {
-    "name": "Gardening",
-    "image": "assets/images/Cleaning.png"
-  },
+
   {
     "name": "Painting",
-    "image": "assets/images/Electrician.png"
+    "image": "assets/images/painter (4).png"
   },
   {
     "name": "Carpentry",
-    "image": "assets/images/Cleaning.png"
+    "image": "assets/images/carpenter (4).png"
   },
   {
-    "name": "Livraison",
-    "image": "assets/images/Electrician.png"
+    "name": "Delivery",
+    "image": "assets/images/food-delivery.png"
+  },
+  {
+    "name": "Cleaning",
+    "image": "assets/images/broom (5).png"
+  },
+  {
+    "name": "Plumbing",
+    "image": "assets/images/plumber (6).png"
+  },
+  {
+    "name": "Nurse",
+    "image": "assets/images/nurses.png"
+  },
+  {
+    "name": "Gardening",
+    "image": "assets/images/orchard (4).png"
   }
 ]

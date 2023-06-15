@@ -1,7 +1,8 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'package:flutter/material.dart';
-import 'package:onboading/widgets/small_text.dart';
+
+import 'small_text.dart';
 
 class IconAndText extends StatelessWidget {
   final IconData icon;

@@ -1,13 +1,24 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:onboading/utils/colors.dart';
 
-import '../workers/workers.dart';
+import '../../utils/colors.dart';
 
-class EmployeeDetailsAppbar extends StatelessWidget {
-  const EmployeeDetailsAppbar({super.key});
+class EmployeeDetailsAppbar extends StatefulWidget {
+  String? pic;
 
+  EmployeeDetailsAppbar({
+    Key? key,
+    this.pic,
+  }) : super(key: key);
+
+  @override
+  State<EmployeeDetailsAppbar> createState() => _EmployeeDetailsAppbarState();
+}
+
+class _EmployeeDetailsAppbarState extends State<EmployeeDetailsAppbar> {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
@@ -19,19 +30,19 @@ class EmployeeDetailsAppbar extends StatelessWidget {
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           color: AppColors.mainBlue,
-          child: const Center(
-              child: CircleAvatar(
-            maxRadius: 70,
-            backgroundImage:
-                AssetImage("assets/images/professional-electrician.jpeg"),
-
-            // backgroundColor: Colors.white,
-          )),
+          child: InkWell(
+            onTap: () {},
+            child: CachedNetworkImage(
+              imageUrl: widget.pic!,
+              placeholder: (context, url) =>
+                  const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => const SizedBox(),
+              fit: BoxFit.cover,
+              width: 30,
+              height: 30,
+            ),
+          ),
         ),
-        // background: Image.asset(
-        //   "assets/images/professional-electrician.jpeg",
-        //   fit: BoxFit.cover,
-        // ),
         stretchModes: const [
           StretchMode.blurBackground,
           StretchMode.zoomBackground

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intro_screen_onboarding_flutter/intro_app.dart';
-import 'package:onboading/pages/login/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../login/login.dart';
 
 class OnBoarding extends StatefulWidget {
   const OnBoarding({super.key});
@@ -23,12 +25,6 @@ class _OnBoardingState extends State<OnBoarding> {
       subTitle: 'Hassle-free home maintenance',
       subTitleTextStyle: const TextStyle(fontSize: 19),
       imageUrl: 'assets/images/illustration2.png',
-    ),
-    Introduction(
-      title: 'Grow',
-      subTitle: 'Reach new clients and grow your business',
-      subTitleTextStyle: const TextStyle(fontSize: 19),
-      imageUrl: 'assets/images/illustration.png',
     ),
     Introduction(
       title: 'And much more',
@@ -56,12 +52,8 @@ class _OnBoardingState extends State<OnBoarding> {
         foregroundColor: const Color.fromARGB(255, 54, 71, 135),
         onTapSkipButton: () async {
           await _storeOnBoardingInfo();
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const LogInpage(),
-            ),
-          );
+          // ignore: use_build_context_synchronously
+          Get.to(() => const LogInpage(), transition: Transition.fadeIn);
         },
       ),
     ));

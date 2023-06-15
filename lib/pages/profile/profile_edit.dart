@@ -1,30 +1,67 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first, use_build_context_synchronously
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csc_picker/csc_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
+import '../../main.dart';
 import '../../utils/colors.dart';
 
-const List<String> list = <String>['One', 'Two', 'Three', 'Four'];
-String countryValue = "";
-String stateValue = "";
-String cityValue = "";
+String? countryValue;
+String? stateValue;
+String? cityValue;
 
+// ignore: must_be_immutable
 class Profile extends StatefulWidget {
-  const Profile({Key? key}) : super(key: key);
+  TextEditingController nameController;
+  TextEditingController emailController;
+  TextEditingController phoneController;
+
+  String? currentCountry;
+  String? currentState;
+  String? currentCity;
+  String? pic;
+  Profile(
+      {Key? key,
+      required this.nameController,
+      required this.emailController,
+      required this.phoneController,
+      this.currentCountry,
+      this.currentState,
+      this.currentCity,
+      this.pic})
+      : super(key: key);
 
   @override
   State<Profile> createState() => _ProfileState();
 }
 
 class _ProfileState extends State<Profile> {
-  TextEditingController nameController = TextEditingController();
-  String dropdownValue = list.first;
-
-  GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
   @override
   void initState() {
     super.initState();
+    showDialogToWait();
   }
+
+  void showDialogToWait() async {
+    await Future.delayed(Duration.zero);
+
+    showDialog(
+      context: navigatorKey.currentContext!,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+    await Future.delayed(const Duration(milliseconds: 500));
+    Navigator.pop(context, true);
+  }
+
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -52,18 +89,16 @@ class _ProfileState extends State<Profile> {
                     alignment: Alignment.bottomCenter,
                     child: InkWell(
                         onTap: () {},
-                        child: Container(
-                          width: 120,
-                          height: 120,
-                          margin: const EdgeInsets.only(bottom: 20),
-                          decoration: const BoxDecoration(
-                              shape: BoxShape.circle, color: Color(0xffD6D6D6)),
-                          child: const Center(
-                            child: Icon(
-                              Icons.camera_alt_outlined,
-                              size: 40,
-                              color: Colors.white,
-                            ),
+                        child: ClipOval(
+                          child: CachedNetworkImage(
+                            imageUrl: widget.pic!,
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                Image.asset("assets/images/add-pic.png"),
+                            fit: BoxFit.cover,
+                            width: 130,
+                            height: 130,
                           ),
                         )),
                   ),
@@ -81,6 +116,7 @@ class _ProfileState extends State<Profile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextFieldWidget(
+                      widget.nameController,
                       'Name',
                       Icons.person_outlined,
                     ),
@@ -88,6 +124,7 @@ class _ProfileState extends State<Profile> {
                       height: 15,
                     ),
                     TextFieldWidget(
+                      widget.emailController,
                       'Email',
                       Icons.email_outlined,
                     ),
@@ -95,6 +132,7 @@ class _ProfileState extends State<Profile> {
                       height: 15,
                     ),
                     TextFieldWidget(
+                      widget.phoneController,
                       'Phone',
                       Icons.phone_outlined,
                     ),
@@ -109,14 +147,20 @@ class _ProfileState extends State<Profile> {
                       height: 12,
                     ),
                     CSCPicker(
-                      onCountryChanged: (value) {},
-
-                      ///triggers once state selected in dropdown
-                      onStateChanged: (value) {},
-
-                      ///triggers once city selected in dropdown
-                      onCityChanged: (value) {},
+                      currentCountry: widget.currentCountry,
+                      onCountryChanged: (value) {
+                        widget.currentCountry = value;
+                      },
+                      currentState: widget.currentState,
+                      onStateChanged: (value) {
+                        widget.currentState = value;
+                      },
+                      currentCity: widget.currentCity,
+                      onCityChanged: (value) {
+                        widget.currentCity = value;
+                      },
                     ),
+                    
                     const SizedBox(
                       height: 25,
                     ),
@@ -124,6 +168,7 @@ class _ProfileState extends State<Profile> {
                       if (!formKey.currentState!.validate()) {
                         return;
                       }
+                      updateUserData();
                     }, AppColors.mainBlue),
                   ],
                 ),
@@ -137,6 +182,7 @@ class _ProfileState extends State<Profile> {
 
   // ignore: non_constant_identifier_names
   TextFieldWidget(
+    TextEditingController controller,
     String title,
     IconData iconData,
   ) {
@@ -161,6 +207,8 @@ class _ProfileState extends State<Profile> {
               ],
               borderRadius: BorderRadius.circular(8)),
           child: TextFormField(
+            controller: controller,
+            style: TextStyle(fontSize: 15.sp),
             decoration: InputDecoration(
               hintText: title,
               hintStyle:
@@ -203,5 +251,43 @@ class _ProfileState extends State<Profile> {
               image: AssetImage('assets/images/mask.png'), fit: BoxFit.fill)),
       height: MediaQuery.of(context).size.height * 0.15,
     );
+  }
+
+  Future<void> updateUserData() async {
+    showDialog(
+      context: navigatorKey.currentContext!,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+    try {
+      final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
+      await FirebaseFirestore.instance
+          .collection('clients')
+          .doc(currentUserUid)
+          .update({
+        'Name': widget.nameController.text,
+        'Email': widget.emailController.text,
+        'Phone': widget.phoneController.text,
+        'Country': widget.currentCountry,
+        'State': widget.currentState,
+        'City': widget.currentCity,
+      });
+      showTopSnackBar(
+        Overlay.of(context),
+        const CustomSnackBar.success(
+          message: "Data updated successfully",
+        ),
+      );
+    } catch (e) {
+      showTopSnackBar(
+        Overlay.of(context),
+        CustomSnackBar.error(
+          message: e.toString(),
+        ),
+      );
+    }
+    Navigator.pop(context, true);
   }
 }
