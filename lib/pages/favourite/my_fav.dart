@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'favorites_list.dart';
 
-class MyFav extends StatelessWidget {
-  const MyFav({super.key});
 
+class MyFav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

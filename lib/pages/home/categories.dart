@@ -139,7 +139,7 @@ class _SelectServiceState extends State<SelectService> {
                                       icon: Icons.favorite,
                                       onPressed: () {
                                         Get.to(
-                                          () => const MyFav(),
+                                          () => MyFav(),
                                           transition: Transition.fade,
                                         );
                                       }),
