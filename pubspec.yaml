@@ -60,6 +60,8 @@ dependencies:
   firebase_messaging: ^14.5.0
   http: ^0.13.6
   flutter_launcher_icons: ^0.13.1
+  geolocator: ^8.0.1
+  google_maps_flutter: ^2.0.10
 
 dev_dependencies:
   flutter_test:
